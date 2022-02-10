@@ -343,8 +343,14 @@ function CpBaseHud:draw(status)
     --- Set variable data.
     self.courseNameBtn:setTextDetails(self.vehicle:getCurrentCpCourseName())
     self.vehicleNameBtn:setTextDetails(self.vehicle:getName())
-    self.startingPointBtn:setTextDetails(self.vehicle:getCpStartingPointSetting():getString())
-    
+    if self.vehicle:getCanStartCpBaleFinder() then 
+        self.startingPointBtn:setDisabled(true)
+        self.startingPointBtn:setTextDetails(self.vehicle:getCpStartText())
+    else
+        self.startingPointBtn:setDisabled(false)
+        self.startingPointBtn:setTextDetails(self.vehicle:getCpStartingPointSetting():getString())
+    end
+   
     if status:getIsActive() then
         self.onOffButton:setColor(unpack(CpBaseHud.ON_COLOR))
     else

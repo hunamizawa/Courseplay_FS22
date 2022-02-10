@@ -7,7 +7,7 @@ function AITaskFieldWorkCp.new(isServer, job, customMt)
 	return self
 end
 
---- Makes sure Cp driver gets started.
+--- Makes sure the cp fieldworker gets started.
 function AITaskFieldWorkCp:start()
 	if self.isServer then
 		self.vehicle:cpStartFieldWorker(self.job:getCpJobParameters())
