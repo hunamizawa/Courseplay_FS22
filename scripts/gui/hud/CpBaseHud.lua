@@ -425,7 +425,7 @@ function CpBaseHud:openCourseGeneratorGui(vehicle)
     inGameMenu.pageAI:onCreateJob()
     for i,index in ipairs(inGameMenu.pageAI.currentJobTypes) do 
         local job = inGameMenu.pageAI.jobTypeInstances[index]
-        if job:isa(AIJobFieldWorkCp) then 
+        if job:isa(CpAIJobFieldWork) then 
             if not vehicle:hasCpCourse() then 
                 -- Sets the start position relative to the vehicle position, but only if no course is set.
                 job:resetStartPositionAngle(vehicle)

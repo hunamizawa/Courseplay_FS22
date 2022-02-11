@@ -1,16 +1,16 @@
---- AI job derived of AIJobCp.
----@class AIJobFieldWorkCp : AIJobCp
-AIJobFieldWorkCp = {
+--- AI job derived of CpAIJob.
+---@class CpAIJobFieldWork : CpAIJob
+CpAIJobFieldWork = {
 	name = "FIELDWORK_CP",
 	translations = {
 		jobName = "CP_job_fieldWork",
 		GenerateButton = "FIELDWORK_BUTTON"
 	}
 }
-local AIJobFieldWorkCp_mt = Class(AIJobFieldWorkCp, AIJobCp)
+local AIJobFieldWorkCp_mt = Class(CpAIJobFieldWork, CpAIJob)
 
-function AIJobFieldWorkCp.new(isServer, customMt)
-	local self = AIJobCp.new(isServer, customMt or AIJobFieldWorkCp_mt)
+function CpAIJobFieldWork.new(isServer, customMt)
+	local self = CpAIJob.new(isServer, customMt or AIJobFieldWorkCp_mt)
 		
 	self.lastPositionX, self.lastPositionZ = math.huge, math.huge
 	self.hasValidPosition = false
@@ -20,14 +20,14 @@ function AIJobFieldWorkCp.new(isServer, customMt)
 	return self
 end
 
-function AIJobFieldWorkCp:setupTasks(isServer)
-	AIJobFieldWorkCp:superClass().setupTasks(self, isServer)
-	self.fieldWorkTask = AITaskFieldWorkCp.new(isServer, self)
+function CpAIJobFieldWork:setupTasks(isServer)
+	CpAIJobFieldWork:superClass().setupTasks(self, isServer)
+	self.fieldWorkTask = CpAITaskFieldWork.new(isServer, self)
 	self:addTask(self.fieldWorkTask)
 end
 
-function AIJobFieldWorkCp:setupJobParameters()
-	AIJobFieldWorkCp:superClass().setupJobParameters(self)
+function CpAIJobFieldWork:setupJobParameters()
+	CpAIJobFieldWork:superClass().setupJobParameters(self)
 
 	-- Adds field position parameter
 	self.fieldPositionParameter = AIParameterPosition.new()
@@ -44,8 +44,8 @@ function AIJobFieldWorkCp:setupJobParameters()
 	self:setupCpJobParameters(nil)
 end
 
-function AIJobFieldWorkCp:applyCurrentState(vehicle, mission, farmId, isDirectStart)
-	AIJobFieldWorkCp:superClass().applyCurrentState(self, vehicle, mission, farmId, isDirectStart)
+function CpAIJobFieldWork:applyCurrentState(vehicle, mission, farmId, isDirectStart)
+	CpAIJobFieldWork:superClass().applyCurrentState(self, vehicle, mission, farmId, isDirectStart)
 	
 	local x, z = nil
 
@@ -65,7 +65,7 @@ function AIJobFieldWorkCp:applyCurrentState(vehicle, mission, farmId, isDirectSt
 end
 
 --- Checks the field position setting.
-function AIJobFieldWorkCp:validateFieldSetup(isValid, errorMessage)
+function CpAIJobFieldWork:validateFieldSetup(isValid, errorMessage)
 	
 	local vehicle = self.vehicleParameter:getVehicle()
 
@@ -102,14 +102,14 @@ function AIJobFieldWorkCp:validateFieldSetup(isValid, errorMessage)
 	end
 end
 
-function AIJobFieldWorkCp:setValues()
-	AIJobFieldWorkCp:superClass().setValues(self)
+function CpAIJobFieldWork:setValues()
+	CpAIJobFieldWork:superClass().setValues(self)
 	local vehicle = self.vehicleParameter:getVehicle()
 	self.fieldWorkTask:setVehicle(vehicle)
 end
 
 --- Called when parameters change, scan field
-function AIJobFieldWorkCp:validate(farmId)
+function CpAIJobFieldWork:validate(farmId)
 	local isValid, errorMessage = AIJobFieldWork:superClass().validate(self, farmId)
 	if not isValid then
 		return isValid, errorMessage
@@ -129,37 +129,37 @@ function AIJobFieldWorkCp:validate(farmId)
 	return true, ''
 end
 
-function AIJobFieldWorkCp:drawSelectedField(map)
+function CpAIJobFieldWork:drawSelectedField(map)
 	if self.selectedFieldPlot then
 		self.selectedFieldPlot:draw(map)
 	end
 end
 
-function AIJobFieldWorkCp:getFieldPositionTarget()
+function CpAIJobFieldWork:getFieldPositionTarget()
 	return self.fieldPositionParameter:getPosition()
 end
 
 ---@return CustomField or nil Custom field when the user selected a field position on a custom field
-function AIJobFieldWorkCp:getCustomField()
+function CpAIJobFieldWork:getCustomField()
 	return self.customField
 end
 
-function AIJobFieldWorkCp:getCanGenerateFieldWorkCourse()
+function CpAIJobFieldWork:getCanGenerateFieldWorkCourse()
 	return self.hasValidPosition
 end
 
 --- Is course generation allowed ?
-function AIJobFieldWorkCp:isCourseGenerationAllowed()
+function CpAIJobFieldWork:isCourseGenerationAllowed()
 	return true
 end
 
-function AIJobFieldWorkCp:getCanStartJob()
+function CpAIJobFieldWork:getCanStartJob()
 	local vehicle = self:getVehicle()
 	return vehicle and vehicle:hasCpCourse()
 end
 
 --- Button callback to generate a field work course.
-function AIJobFieldWorkCp:onClickGenerateFieldWorkCourse()
+function CpAIJobFieldWork:onClickGenerateFieldWorkCourse()
 	local vehicle = self.vehicleParameter:getVehicle()
 	local settings = vehicle:getCourseGeneratorSettings()
 	local status, ok, course = CourseGeneratorInterface.generate(self.fieldPolygon,
@@ -193,7 +193,7 @@ function AIJobFieldWorkCp:onClickGenerateFieldWorkCourse()
 	vehicle:setFieldWorkCourse(course)
 end
 
-function AIJobFieldWorkCp:isPipeOnLeftSide(vehicle)
+function CpAIJobFieldWork:isPipeOnLeftSide(vehicle)
 	if AIUtil.getImplementOrVehicleWithSpecialization(vehicle, Combine) then
 		local pipeAttributes = {}
 		local combine = ImplementUtil.findCombineObject(vehicle)
@@ -204,19 +204,19 @@ function AIJobFieldWorkCp:isPipeOnLeftSide(vehicle)
 	end
 end
 
-function AIJobFieldWorkCp:getIsAvailableForVehicle(vehicle)
+function CpAIJobFieldWork:getIsAvailableForVehicle(vehicle)
 	return vehicle.getCanStartCpFieldWork and vehicle:getCanStartCpFieldWork()
 end
 
-function AIJobFieldWorkCp:resetStartPositionAngle(vehicle)
-	AIJobFieldWorkCp:superClass().resetStartPositionAngle(self, vehicle)
+function CpAIJobFieldWork:resetStartPositionAngle(vehicle)
+	CpAIJobFieldWork:superClass().resetStartPositionAngle(self, vehicle)
 	local x, _, z = getWorldTranslation(vehicle.rootNode) 
 	self.fieldPositionParameter:setPosition(x, z)
 end
 
 --- Ugly hack to fix a mp problem from giants, where the helper is not always reset correctly on the client side.
-function AIJobFieldWorkCp:stop(aiMessage)	
-	AIJobFieldWorkCp:superClass().stop(self, aiMessage)
+function CpAIJobFieldWork:stop(aiMessage)	
+	CpAIJobFieldWork:superClass().stop(self, aiMessage)
 
 	local vehicle = self.vehicleParameter:getVehicle()
 	if vehicle and vehicle.spec_aiFieldWorker.isActive then 

@@ -169,9 +169,9 @@ function CpAIWorker:startStopDriver()
 end
 
 --- Is a cp worker active ? 
---- Every cp job should be an instance of type AIJobCp.
+--- Every cp job should be an instance of type CpAIJob.
 function CpAIWorker:getIsCpActive()
-    return self:getIsAIActive() and self:getJob() and self:getJob():isa(AIJobCp)
+    return self:getIsAIActive() and self:getJob() and self:getJob():isa(CpAIJob)
 end
 
 --- Is a cp job ready to be started?

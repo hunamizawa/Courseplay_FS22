@@ -118,7 +118,7 @@ end
 
 --- Is a cp fieldwork job active ?
 function CpAIFieldWorker:getIsCpFieldWorkActive()
-    return self:getIsAIActive() and self:getJob() and self:getJob():isa(AIJobFieldWorkCp)
+    return self:getIsAIActive() and self:getJob() and self:getJob():isa(CpAIJobFieldWork)
 end
 
 function CpAIFieldWorker:getCpFieldWorkProgress()

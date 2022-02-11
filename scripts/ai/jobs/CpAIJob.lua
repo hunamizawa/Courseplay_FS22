@@ -1,15 +1,15 @@
 --- Basic cp job.
 --- Every cp job should be derived from this job.
----@class AIJobCp : AIJob
-AIJobCp = {
+---@class CpAIJob : AIJob
+CpAIJob = {
 	name = "",
 	translations = {
 		jobName = ""
 	}
 }
-local AIJobCp_mt = Class(AIJobCp, AIJob)
+local AIJobCp_mt = Class(CpAIJob, AIJob)
 
-function AIJobCp.new(isServer, customMt)
+function CpAIJob.new(isServer, customMt)
 	local self = AIJob.new(isServer, customMt or AIJobCp_mt)
 	
 	self.isDirectStart = false
@@ -25,14 +25,14 @@ function AIJobCp.new(isServer, customMt)
 end
 
 --- Setup all tasks.
-function AIJobCp:setupTasks(isServer)
+function CpAIJob:setupTasks(isServer)
 	self.driveToTask = AITaskDriveTo.new(isServer, self)
 	self:addTask(self.driveToTask)
 end
 
 --- Setup all job parameters.
 --- For now every job has these parameters in common.
-function AIJobCp:setupJobParameters()
+function CpAIJob:setupJobParameters()
 	self.vehicleParameter = AIParameterVehicle.new()
 	self.positionAngleParameter = AIParameterPositionAngle.new(math.rad(0))
 
@@ -51,7 +51,7 @@ function AIJobCp:setupJobParameters()
 end
 
 --- Optional to create custom cp job parameters.
-function AIJobCp:setupCpJobParameters(configFile)
+function CpAIJob:setupCpJobParameters(configFile)
 	self.cpJobParameters = CpJobParameters(self, configFile)
 	CpSettingsUtil.generateAiJobGuiElementsFromSettingsTable(self.cpJobParameters.settingsBySubTitle,self,self.cpJobParameters)
 	self.cpJobParameters:validateSettings()
@@ -59,7 +59,7 @@ function AIJobCp:setupCpJobParameters(configFile)
 end
 
 --- Gets the first task to start with.
-function AIJobCp:getStartTaskIndex()
+function CpAIJob:getStartTaskIndex()
 	if self.isDirectStart then
 		return 2
 	end
@@ -67,7 +67,7 @@ function AIJobCp:getStartTaskIndex()
 end
 
 --- Should the giants path finder job be skipped?
-function AIJobCp:isTargetReached()
+function CpAIJob:isTargetReached()
 	local vehicle = self.vehicleParameter:getVehicle()
 	local x, _, z = getWorldTranslation(vehicle.rootNode)
 	local tx, tz = self.positionAngleParameter:getPosition()
@@ -76,8 +76,8 @@ function AIJobCp:isTargetReached()
 	return targetReached
 end
 
-function AIJobCp:start(farmId)
-	AIJobCp:superClass().start(self, farmId)
+function CpAIJob:start(farmId)
+	CpAIJob:superClass().start(self, farmId)
 
 	if self.isServer then
 		local vehicle = self.vehicleParameter:getVehicle()
@@ -87,7 +87,7 @@ function AIJobCp:start(farmId)
 	end
 end
 
-function AIJobCp:stop(aiMessage)
+function CpAIJob:stop(aiMessage)
 	if self.isServer then
 		local vehicle = self.vehicleParameter:getVehicle()
 
@@ -95,12 +95,12 @@ function AIJobCp:stop(aiMessage)
 		vehicle:aiJobFinished()
 	end
 	
-	AIJobCp:superClass().stop(self, aiMessage)
+	CpAIJob:superClass().stop(self, aiMessage)
 end
 
 --- Updates the parameter values.
-function AIJobCp:applyCurrentState(vehicle, mission, farmId, isDirectStart)
-	AIJobCp:superClass().applyCurrentState(self, vehicle, mission, farmId, isDirectStart)
+function CpAIJob:applyCurrentState(vehicle, mission, farmId, isDirectStart)
+	CpAIJob:superClass().applyCurrentState(self, vehicle, mission, farmId, isDirectStart)
 	self.vehicleParameter:setVehicle(vehicle)
 
 	local x, z, angle, _ = nil
@@ -108,7 +108,7 @@ function AIJobCp:applyCurrentState(vehicle, mission, farmId, isDirectStart)
 	if vehicle.getLastJob ~= nil then
 		local lastJob = vehicle:getLastJob()
 
-		if not isDirectStart and lastJob ~= nil and lastJob:isa(AIJobCp) then
+		if not isDirectStart and lastJob ~= nil and lastJob:isa(CpAIJob) then
 			x, z = lastJob.positionAngleParameter:getPosition()
 			angle = lastJob.positionAngleParameter:getAngle()
 		end
@@ -134,12 +134,12 @@ function AIJobCp:applyCurrentState(vehicle, mission, farmId, isDirectStart)
 end
 
 --- Can the vehicle be used for this job?
-function AIJobCp:getIsAvailableForVehicle(vehicle)
+function CpAIJob:getIsAvailableForVehicle(vehicle)
 	return true
 end
 
 --- Target for the giants drive task.
-function AIJobCp:getTarget()
+function CpAIJob:getTarget()
 	local angle = 0
 
 	if self.driveToTask.dirX ~= nil then
@@ -149,7 +149,7 @@ function AIJobCp:getTarget()
 	return self.driveToTask.x, self.driveToTask.z, angle
 end
 
-function AIJobCp:getTitle()
+function CpAIJob:getTitle()
 	local vehicle = self.vehicleParameter:getVehicle()
 
 	if vehicle ~= nil then
@@ -160,7 +160,7 @@ function AIJobCp:getTitle()
 end
 
 --- Applies the parameter values to the tasks.
-function AIJobCp:setValues()
+function CpAIJob:setValues()
 	self:resetTasks()
 
 	local vehicle = self.vehicleParameter:getVehicle()
@@ -176,7 +176,7 @@ function AIJobCp:setValues()
 end
 
 --- Is the job valid?
-function AIJobCp:validate(farmId)
+function CpAIJob:validate(farmId)
 	self:setParamterValid(true)
 
 	local isValid, errorMessage = self.vehicleParameter:validate()
@@ -188,8 +188,8 @@ function AIJobCp:validate(farmId)
 	return isValid, errorMessage
 end
 
-function AIJobCp:getDescription()
-	local desc = AIJobCp:superClass().getDescription(self)
+function CpAIJob:getDescription()
+	local desc = CpAIJob:superClass().getDescription(self)
 	local nextTask = self:getTaskByIndex(self.currentTaskIndex)
 
 	if nextTask == self.driveToTask then
@@ -201,7 +201,7 @@ function AIJobCp:getDescription()
 	return desc
 end
 
-function AIJobCp:getIsStartable(connection)
+function CpAIJob:getIsStartable(connection)
 	if g_currentMission.aiSystem:getAILimitedReached() then
 		return false, AIJobFieldWork.START_ERROR_LIMIT_REACHED
 	end
@@ -223,7 +223,7 @@ function AIJobCp:getIsStartable(connection)
 	return true, AIJob.START_SUCCESS
 end
 
-function AIJobCp.getIsStartErrorText(state)
+function CpAIJob.getIsStartErrorText(state)
 	if state == AIJobFieldWork.START_ERROR_LIMIT_REACHED then
 		return g_i18n:getText("ai_startStateLimitReached")
 	elseif state == AIJobFieldWork.START_ERROR_VEHICLE_DELETED then
@@ -238,37 +238,37 @@ function AIJobCp.getIsStartErrorText(state)
 end
 
 
-function AIJobCp:writeStream(streamId, connection)
-	AIJobCp:superClass().writeStream(self, streamId, connection)
+function CpAIJob:writeStream(streamId, connection)
+	CpAIJob:superClass().writeStream(self, streamId, connection)
 	if self.cpJobParameters then
 		self.cpJobParameters:writeStream(streamId, connection)
 	end
 end
 
-function AIJobCp:readStream(streamId, connection)
-	AIJobCp:superClass().readStream(self, streamId, connection)
+function CpAIJob:readStream(streamId, connection)
+	CpAIJob:superClass().readStream(self, streamId, connection)
 	if self.cpJobParameters then
 		self.cpJobParameters:readStream(streamId, connection)
 	end
 end
 
-function AIJobCp:getCpJobParameters()
+function CpAIJob:getCpJobParameters()
 	return self.cpJobParameters
 end
 
 --- Can the job be started?
-function AIJobCp:getCanStartJob()
+function CpAIJob:getCanStartJob()
 	return true
 end
 
 --- Applies the global wage modifier. 
-function AIJobCp:getPricePerMs()
+function CpAIJob:getPricePerMs()
 	local modifier = g_Courseplay.globalSettings:getSettings().wageModifier:getValue()/100
-	return AIJobCp:superClass().getPricePerMs(self) * modifier
+	return CpAIJob:superClass().getPricePerMs(self) * modifier
 end
 
 --- Resets the position parameters, if the menu was opened by the hud.
-function AIJobCp:resetStartPositionAngle(vehicle)
+function CpAIJob:resetStartPositionAngle(vehicle)
 	local x, _, z = getWorldTranslation(vehicle.rootNode) 
 	local dirX, _, dirZ = localDirectionToWorld(vehicle.rootNode, 0, 0, 1)
 
@@ -277,17 +277,17 @@ function AIJobCp:resetStartPositionAngle(vehicle)
 	self.positionAngleParameter:setAngle(angle)
 end
 
-function AIJobCp:getVehicle()
+function CpAIJob:getVehicle()
 	return self.vehicleParameter:getVehicle() or self.vehicle
 end
 
 --- Makes sure that the keybinding/hud job has the vehicle.
-function AIJobCp:setVehicle(v)
+function CpAIJob:setVehicle(v)
 	self.vehicle = v
 end
 
 --- Automatically repairs the vehicle, depending on the auto repair setting.
-function AIJobCp.onUpdateTickWearable(object, ...)
+function CpAIJob.onUpdateTickWearable(object, ...)
 	if object:getIsAIActive() and object:getUsageCausesDamage() then 
 		if object.rootVehicle and object.rootVehicle.getIsCpActive and object.rootVehicle:getIsCpActive() then 
 			local dx =  g_Courseplay.globalSettings:getSettings().autoRepair:getValue()
@@ -298,11 +298,11 @@ function AIJobCp.onUpdateTickWearable(object, ...)
 		end
 	end
 end
-Wearable.onUpdateTick = Utils.appendedFunction(Wearable.onUpdateTick, AIJobCp.onUpdateTickWearable)
+Wearable.onUpdateTick = Utils.appendedFunction(Wearable.onUpdateTick, CpAIJob.onUpdateTickWearable)
 
 
 --- Ugly hack to fix a mp problem from giants, where the job class can not be found.
-function AIJobCp.getJobTypeIndex(aiJobTypeManager, superFunc, job)
+function CpAIJob.getJobTypeIndex(aiJobTypeManager, superFunc, job)
 	local ret = superFunc(aiJobTypeManager, job)
 	if ret == nil then 
 		if job.name then 
@@ -311,12 +311,12 @@ function AIJobCp.getJobTypeIndex(aiJobTypeManager, superFunc, job)
 	end
 	return ret
 end
-AIJobTypeManager.getJobTypeIndex = Utils.overwrittenFunction(AIJobTypeManager.getJobTypeIndex ,AIJobCp.getJobTypeIndex)
+AIJobTypeManager.getJobTypeIndex = Utils.overwrittenFunction(AIJobTypeManager.getJobTypeIndex ,CpAIJob.getJobTypeIndex)
 
 --- Registers additional jobs.
-function AIJobCp.registerJob(AIJobTypeManager)
-	AIJobTypeManager:registerJobType(AIJobFieldWorkCp.name, AIJobFieldWorkCp.translations.jobName, AIJobFieldWorkCp)
-	AIJobTypeManager:registerJobType(AIJobBaleFinderCp.name, AIJobBaleFinderCp.translations.jobName, AIJobBaleFinderCp)
+function CpAIJob.registerJob(AIJobTypeManager)
+	AIJobTypeManager:registerJobType(CpAIJobFieldWork.name, CpAIJobFieldWork.translations.jobName, CpAIJobFieldWork)
+	AIJobTypeManager:registerJobType(CpAIJobBaleFinder.name, CpAIJobBaleFinder.translations.jobName, CpAIJobBaleFinder)
 end
 
 
@@ -327,17 +327,17 @@ if g_currentMission then
 		local myJobType = g_currentMission.aiJobTypeManager:getJobTypeByIndex(myJobTypeIndex)
 		myJobType.classObject = AIJob
 	end
-	local myJobTypeIndex = g_currentMission.aiJobTypeManager:getJobTypeIndexByName(AIJobFieldWorkCp.name)
+	local myJobTypeIndex = g_currentMission.aiJobTypeManager:getJobTypeIndexByName(CpAIJobFieldWork.name)
 	if myJobTypeIndex then
 		local myJobType = g_currentMission.aiJobTypeManager:getJobTypeByIndex(myJobTypeIndex)
-		myJobType.classObject = AIJobFieldWorkCp
+		myJobType.classObject = CpAIJobFieldWork
 	end
-	local myJobTypeIndex = g_currentMission.aiJobTypeManager:getJobTypeIndexByName(AIJobBaleFinderCp.name)
+	local myJobTypeIndex = g_currentMission.aiJobTypeManager:getJobTypeIndexByName(CpAIJobBaleFinder.name)
 	if myJobTypeIndex then
 		local myJobType = g_currentMission.aiJobTypeManager:getJobTypeByIndex(myJobTypeIndex)
-		myJobType.classObject = AIJobBaleFinderCp
+		myJobType.classObject = CpAIJobBaleFinder
 	end
 end
 
-AIJobTypeManager.loadMapData = Utils.appendedFunction(AIJobTypeManager.loadMapData,AIJobCp.registerJob)
+AIJobTypeManager.loadMapData = Utils.appendedFunction(AIJobTypeManager.loadMapData,CpAIJob.registerJob)
 

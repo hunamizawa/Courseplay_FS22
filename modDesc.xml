@@ -110,11 +110,11 @@ La prossima versione di Courseplay.
 		<sourceFile filename="scripts/ai/parameters/AIParameterBooleanSetting.lua"/>
 		<sourceFile filename="scripts/ai/parameters/AIParameterSpeedSetting.lua"/>
 		<sourceFile filename="scripts/ai/jobs/CpJobParameters.lua"/>
-		<sourceFile filename="scripts/ai/jobs/AIJopCp.lua"/>
-		<sourceFile filename="scripts/ai/jobs/AIJobFieldWorkCp.lua"/>
-		<sourceFile filename="scripts/ai/jobs/AIJobBaleFinderCp.lua"/>
-		<sourceFile filename="scripts/ai/tasks/AITaskFieldWorkCp.lua"/>
-		<sourceFile filename="scripts/ai/tasks/AITaskBaleFinderCp.lua"/>
+		<sourceFile filename="scripts/ai/jobs/CpAIJob.lua"/>
+		<sourceFile filename="scripts/ai/jobs/CpAIJobFieldWork.lua"/>
+		<sourceFile filename="scripts/ai/jobs/CpAIJobBaleFinder.lua"/>
+		<sourceFile filename="scripts/ai/tasks/CpAITaskFieldWork.lua"/>
+		<sourceFile filename="scripts/ai/tasks/CpAITaskBaleFinder.lua"/>
 		<sourceFile filename="scripts/CpSettingsUtil.lua"/>
 		<sourceFile filename="scripts/CpGlobalSettings.lua"/>
 		<sourceFile filename="scripts/config/VehicleConfigurations.lua"/>
