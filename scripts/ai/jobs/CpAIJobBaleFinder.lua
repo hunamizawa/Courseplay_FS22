@@ -3,7 +3,7 @@
 CpAIJobBaleFinder = {
 	name = "BALE_FINDER_CP",
 	translations = {
-		jobName = "CP_job_baleFinder"
+		jobName = "CP_job_baleCollect"
 	}
 }
 local AIJobBaleFinderCp_mt = Class(CpAIJobBaleFinder, CpAIJobFieldWork)
