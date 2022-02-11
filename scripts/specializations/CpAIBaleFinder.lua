@@ -92,8 +92,9 @@ function CpAIBaleFinder:startCpAtFirstWp(superFunc)
             g_client:getServerConnection():sendEvent(AIJobStartRequestEvent.new(spec.cpJob, self:getOwnerFarmId()))
             return true
         end
+    else 
+        return true
     end
-    
 end
 
 --- Starts the cp driver at the last driven waypoint.
@@ -106,6 +107,8 @@ function CpAIBaleFinder:startCpAtLastWp(superFunc)
             g_client:getServerConnection():sendEvent(AIJobStartRequestEvent.new(spec.cpJob, self:getOwnerFarmId()))
             return true
         end
+    else 
+        return true
     end
 end
 
