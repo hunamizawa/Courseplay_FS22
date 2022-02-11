@@ -40,6 +40,9 @@ function CpAIBaleFinder.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, 'getCanStartCp', CpAIBaleFinder.getCanStartCp)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, 'getCpStartableJob', CpAIBaleFinder.getCpStartableJob)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, 'getCpStartText', CpAIBaleFinder.getCpStartText)
+
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, 'startCpAtFirstWp', CpAIBaleFinder.startCpAtFirstWp)
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, 'startCpAtLastWp', CpAIBaleFinder.startCpAtLastWp)
 end
 ------------------------------------------------------------------------------------------------------------------------
 --- Event listeners
@@ -78,6 +81,33 @@ function CpAIBaleFinder:getCpStartText(superFunc)
 	return text~="" and text or self:getCanStartCpBaleFinder() and CpAIBaleFinder.startText
 end
 
+
+--- Starts the cp driver at the first waypoint.
+function CpAIBaleFinder:startCpAtFirstWp(superFunc)
+    if not superFunc(self) then 
+        if self:getCanStartCpBaleFinder() then 
+            local spec = self.spec_cpAIBaleFinder
+            spec.cpJob:applyCurrentState(self, g_currentMission, g_currentMission.player.farmId, true)
+            spec.cpJob:setValues()
+            g_client:getServerConnection():sendEvent(AIJobStartRequestEvent.new(spec.cpJob, self:getOwnerFarmId()))
+            return true
+        end
+    end
+    
+end
+
+--- Starts the cp driver at the last driven waypoint.
+function CpAIBaleFinder:startCpAtLastWp(superFunc)
+    if not superFunc(self) then 
+        if self:getCanStartCpBaleFinder() then 
+            local spec = self.spec_cpAIBaleFinder
+            spec.cpJob:applyCurrentState(self, g_currentMission, g_currentMission.player.farmId, true)
+            spec.cpJob:setValues()
+            g_client:getServerConnection():sendEvent(AIJobStartRequestEvent.new(spec.cpJob, self:getOwnerFarmId()))
+            return true
+        end
+    end
+end
 
 --- Custom version of AIFieldWorker:startFieldWorker()
 function CpAIBaleFinder:startCpBaleFinder(jobParameters)
