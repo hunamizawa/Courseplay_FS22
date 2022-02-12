@@ -529,31 +529,6 @@ function AIDriveStrategyFieldWorkCourse:changeToFieldWork()
     self:lowerImplements(self.vehicle)
 end
 
-function AIDriveStrategyFieldWorkCourse:stopAndChangeToUnload()
-    -- TODO_22 run unload/refill with the vanilla helper?
-    if false and self.unloadRefillCourse and not self.heldForUnloadRefill then
-        self:rememberWaypointToContinueFieldWork()
-        self:debug('at least one tool is empty/full, aborting work at waypoint %d.', self.storage.continueFieldworkAtWaypoint or -1)
-        self:changeToUnloadOrRefill()
-        self:startCourseWithPathfinding(self.unloadRefillCourse, 1)
-    else
-        if self.vehicle.spec_autodrive and self.vehicle.cp.settings.autoDriveMode:useForUnloadOrRefill() then
-            -- Switch to AutoDrive when enabled
-            self:rememberWaypointToContinueFieldWork()
-            self:stopWork()
-            self:foldImplements()
-            self.state = self.states.ON_UNLOAD_OR_REFILL_WITH_AUTODRIVE
-            self:debug('passing the control to AutoDrive to run the unload/refill course.')
-            --- Make sure trigger handler is disabled, while autodrive is driving.
-            self.triggerHandler:disableFillTypeLoading()
-            self.triggerHandler:disableFuelLoading()
-            self.vehicle.spec_autodrive:StartDrivingWithPathFinder(self.vehicle, self.vehicle.ad.mapMarkerSelected, self.vehicle.ad.mapMarkerSelected_Unload, self, FieldworkAIDriver.onEndCourse, nil);
-        else
-            -- otherwise we'll
-            self:changeToFieldworkUnloadOrRefill()
-        end;
-    end
-end
 
 -- switch back to fieldwork after the turn ended.
 ---@param ix number waypoint to resume fieldwork after
@@ -840,9 +815,9 @@ function AIDriveStrategyFieldWorkCourse:keepConvoyTogether()
     end
 
     -- TODO: multiplayer?
-    self.convoyCurrentDistance= closestDistanceFront
-    self.convoyCurrentPosition=position
-    self.convoyTotalMembers= vehiclesInConvoy
+    self.convoyCurrentDistance = closestDistanceFront
+    self.convoyCurrentPosition = position
+    self.convoyTotalMembers = self.vehiclesInConvoy
 end
 
 -----------------------------------------------------------------------------------------------------------------------
