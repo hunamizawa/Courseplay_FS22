@@ -118,16 +118,16 @@ end
 --- Implement handling
 -----------------------------------------------------------------------------------------------------------------------
 function AIDriveStrategyFindBales:initializeImplementControllers(vehicle)
-    if AIUtil.hasImplementWithSpecialization(vehicle, BaleLoader) then
-        self.baleLoaderController = BaleLoaderController(vehicle)
-        self.baleLoader = self.baleLoaderController:getImplement()
-        table.insert(self.controllers, self.baleLoaderController)
+    local function addController(class, spec)
+        --- If multiple implements have this spec, then add a controller for each implement.
+        for _,childVehicle in pairs(AIUtil.getAllChildVehiclesWithSpecialization(vehicle, spec)) do 
+            local controller = class(vehicle, childVehicle)
+            controller:setDriveStrategy(self)
+            table.insert(self.controllers, controller)
+        end
     end
-    if AIUtil.hasImplementWithSpecialization(vehicle, BaleWrapper) then
-        self.baleWrapperController = BaleWrapperController(vehicle)
-        self.baleWrapper = self.baleWrapperController:getImplement()
-        table.insert(self.controllers, self.baleWrapperController)
-    end
+    addController(BaleLoaderController, BaleLoader)
+    addController(BaleWrapperController, BaleWrapper)
 end
 
 -----------------------------------------------------------------------------------------------------------------------

@@ -16,6 +16,10 @@ function ImplementController:setDisabledStates(disabledStates)
     self.disabledStates = disabledStates
 end
 
+function ImplementController:setDriveStrategy(driveStrategy)
+    self.driveStrategy = driveStrategy
+end
+
 ---@param currentState table current state of the drive strategy
 ---@return boolean true if currentState is not one of the disabled states
 function ImplementController:isEnabled(currentState)
@@ -52,4 +56,14 @@ end
 
 function ImplementController:update(dt)
     -- implement in the derived classes as needed
+end
+
+--- Called by the drive strategy on lowering of the implements.
+function ImplementController:onLowering()
+    
+end
+
+--- Called by the drive strategy on raising of the implements.
+function ImplementController:onRaising()
+    
 end

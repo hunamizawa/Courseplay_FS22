@@ -164,7 +164,6 @@ function AIDriveStrategyFieldWorkCourse:getDriveData(dt, vX, vY, vZ)
         if self.vehicle:getCanAIFieldWorkerContinueWork() then
             self:debug('all tools ready, start working')
             self.state = self.states.WORKING
-            self:handleRidgeMarkers(true)
         else
             self:debugSparse('waiting for all tools to lower')
         end
@@ -249,6 +248,7 @@ function AIDriveStrategyFieldWorkCourse:initializeImplementControllers(vehicle)
         for _,childVehicle in pairs(AIUtil.getAllChildVehiclesWithSpecialization(vehicle, spec)) do 
             local controller = class(vehicle, childVehicle)
             controller:setDisabledStates(states)
+            controller:setDriveStrategy(self)
             table.insert(self.controllers, controller)
         end
     end
@@ -267,6 +267,10 @@ function AIDriveStrategyFieldWorkCourse:initializeImplementControllers(vehicle)
 
     addController(FertilizingCultivatorController, FertilizingCultivator, defaultDisabledStates)
     addController(MowerController, Mower, defaultDisabledStates)
+
+    addController(RidgeMarkerController, RidgeMarker, defaultDisabledStates)
+
+    addController(PickupController, Pickup, defaultDisabledStates)
 end
 
 function AIDriveStrategyFieldWorkCourse:lowerImplements()
@@ -280,6 +284,7 @@ function AIDriveStrategyFieldWorkCourse:lowerImplements()
         -- also, when reversing, we assume that we'll switch to forward, so stop while lowering, then start forward
         self.state = self.states.WAITING_FOR_LOWER_DELAYED
     end
+    self:raiseControllerEvent(self.onLoweringEvent)
 end
 
 function AIDriveStrategyFieldWorkCourse:raiseImplements()
@@ -287,7 +292,7 @@ function AIDriveStrategyFieldWorkCourse:raiseImplements()
         implement.object:aiImplementEndLine()
     end
     self.vehicle:raiseStateChange(Vehicle.STATE_CHANGE_AI_END_LINE)
-    self:handleRidgeMarkers(false)
+    self:raiseControllerEvent(self.onRaisingEvent)
 end
 
 
@@ -697,39 +702,9 @@ function AIDriveStrategyFieldWorkCourse:setOffsetX()
     -- do nothing by default
 end
 
---- Sets the ridgeMarker position on lowering of an implement.
----@param isAllowed boolean is switch ridge markers allowed ?
-function AIDriveStrategyFieldWorkCourse:handleRidgeMarkers(isAllowed)
-	-- no ridge markers with multitools to avoid collisions.
-	if self.settings.ridgeMarkersAutomatic:is(false)
-
-     -- or self.vehicle.cp.courseGeneratorSettings.multiTools:get() > 1
-    then
-        self:debug('Ridge marker handling disabled.')
-        return
-     end
-
-    local function setRidgeMarkerState(self, vehicle, state)
-        local spec = vehicle.spec_ridgeMarker
-        if spec then
-            -- yes, another Giants typo
-            if spec.numRigdeMarkers > 0 then
-                if spec.ridgeMarkerState ~= state then
-                    self:debug('Setting ridge markers to %d for %s', state, vehicle:getName())
-                    vehicle:setRidgeMarkerState(state)
-                end
-            end
-        end
-    end
-
-    local state = isAllowed and  self.course:getRidgeMarkerState(self.ppc:getCurrentWaypointIx()) or 0
-    self:debug('Target ridge marker state is %d.', state)
-    setRidgeMarkerState(self, self.vehicle, state)
-
-    for _, implement in pairs( AIUtil.getAllAIImplements(self.vehicle)) do
-        setRidgeMarkerState(self, implement.object, state)
-    end
-
+--- Gets the current ridge marker state.
+function AIDriveStrategyFieldWorkCourse:getRidgeMarkerState()
+    return self.course:getRidgeMarkerState(self.ppc:getCurrentWaypointIx()) or 0
 end
 
 function AIDriveStrategyFieldWorkCourse:showAllInfo(note, ...)
